@@ -30,7 +30,8 @@ foreach my $person (@$json_array_ref) {
 
 Was used to _objectify_ each record contained in `JSON` of the form,
 
-\[
+```
+[
   {
     "id": 1,
     "name": "Leanne Graham",
@@ -48,16 +49,47 @@ Was used to _objectify_ each record contained in `JSON` of the form,
     }
   },
  ...
-\]
+]
+```
 
 The problem revealed here is that `h2o` is amazing for giving accessors those ad hoc or temporary _pure_ `HASH` references all Perl programmers come to know and love. But the veil gets pierced once an `ARRAY` ref is encountered. And this is what happens in the example above.
 
 How should this be solved? By generalizing `h2o` into a _keyword_ that has the ability to traverse any Perl data structure, adding accessors to any `HASH` ref it finds along this way. This is what `d2o` does.
 
-Now the explicit iteration that is just for adding accessors to each record, goes from a loop having to dereference the ``` ARRAY ``ref in `$json_array_ref`, to the following:`` ```
+Now the explicit iteration that is just for adding accessors to each record, goes from a loop having to dereference the ``` ARRAY ``ref in `$json_array_ref`, to the following:
 
-    # decode JSON from response content
-    my $json_array_ref = d2o JSON::decode_json($response->content); # $json is an ARRAY reference
-    
+```
+# decode JSON from response content
+my $json_array_ref = d2o JSON::decode_json($response->content); # $json is an ARRAY reference
+```
 
-``` `` `d2o` does not just ignore `ARRAYs`, it goes a step further by providing _virtual_ methods around the `ARRAY` container that further helps avoid the need to use `ARRAY`dereferencing syntax to iterate over the `HASH` references (now blessed with accessors). See the example below,  foreach my $user ($json_array_ref->all) {   printf qq{%5.4f, %5.4f, %s, %s\n},     $person->address->geo->lat,   # deep chain of accessors from '-recurse'     $person->address->geo->lng,   # deep chain of accessors from '-recurse'     $person->name,     $person->username;   }  Or more concisely,  use strict; use warnings; use Util::H2O::More qw/d2o/;  my $http     = HTTP::Tiny->new; my $response = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});  # decode JSON from response content my $json_array_ref = d2o JSON::decode_json( $response->content );    # $json is an ARRAY reference  foreach my $user ( $json_array_ref->all ) {     printf qq{%5.4f, %5.4f, %s, %s\n}, $person->address->geo->lat, $person->address->geo->lng, $person->name, $person->username; } `` ```
+`d2o` does not just ignore `ARRAY`s, it goes a step further by providing _virtual_ methods around the `ARRAY` container that further helps avoid the need to use
+`ARRAY` dereferencing syntax to iterate over the `HASH` references (now blessed with accessors). See the example below,
+
+```
+foreach my $user ($json_array_ref->all) {
+  printf qq{%5.4f, %5.4f, %s, %s\n},
+  $person->address->geo->lat,   # deep chain of accessors from '-recurse'
+  $person->address->geo->lng,   # deep chain of accessors from '-recurse'
+  $person->name,
+  $person->username;
+}
+```
+
+Or more concisely,
+
+```
+use strict;
+use warnings;
+use Util::H2O::More qw/d2o/;
+my $http     = HTTP::Tiny->new;
+my $response = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});  # decode JSON from response content
+my $json_array_ref = d2o JSON::decode_json( $response->content );
+# $json is an ARRAY reference
+foreach my $user ( $json_array_ref->all ) {
+  printf qq{%5.4f, %5.4f, %s, %s\n},
+  $person->address->geo->lat,
+  $person->address->geo->lng,
+  $person->name,
+  $person->username; }
+```
