@@ -58,18 +58,36 @@ Without much ado:
 ```
 use strict;
 use warnings;
+use JSON       qw//;
+use HTTP::Tiny qw//;
 use Util::H2O::More qw/h2o d2o/;
 my $http     = HTTP::Tiny->new;
 my $response = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});  # decode JSON from response content
 my $json_array_ref = d2o JSON::decode_json( $response->content );
 # $json is an ARRAY reference
-foreach my $user ( $json_array_ref->all ) {
+foreach my $person ( $json_array_ref->all ) {
   printf qq{%5.4f, %5.4f, %s, %s\n},
   $person->address->geo->lat,
   $person->address->geo->lng,
   $person->name,
   $person->username;
 }
+```
+
+Which outputs, like above:
+
+```
+lat, lng, name, username
+-37.3159, 81.1496, Leanne Graham, Bret
+-43.9509, -34.4618, Ervin Howell, Antonette
+-68.6102, -47.0653, Clementine Bauch, Samantha
+29.4572, -164.2990, Patricia Lebsack, Karianne
+-31.8129, 62.5342, Chelsey Dietrich, Kamren
+-71.4197, 71.7478, Mrs. Dennis Schulist, Leopoldo_Corkery
+24.8918, 21.8984, Kurtis Weissnat, Elwyn.Skiles
+-14.3990, -120.7677, Nicholas Runolfsdottir V, Maxime_Nienow
+24.6463, -168.8889, Glenna Reichert, Delphine
+-38.2386, 57.2232, Clementina DuBuque, Moriah.Stanton
 ```
 
 In this example, the initial `HASH` reference returned by `HTTP::Tiny` is made into an object with accessors using `h2o` like the original code. However, rather than having to dereference the `ARRAY` reference `$json_array_ref` (returned after decoding by `decode_json`), `d2o` is employed to convert the data structure such that all `HASH` references haveaccessors as expected. And the `ARRAY` reference containing the list of `HASH` references has been _blessed_ so that it has the _virtual_ methods on `ARRAY`s briefly mentioned above.
