@@ -82,7 +82,6 @@ Which outputs, like above:
     -14.3990, -120.7677, Nicholas Runolfsdottir V, Maxime_Nienow
     24.6463, -168.8889, Glenna Reichert, Delphine
     -38.2386, 57.2232, Clementina DuBuque, Moriah.Stanton
-```
 
 In this example, the initial `HASH` reference returned by `HTTP::Tiny` is made into an object with accessors using `h2o` like the original code. However, rather than having to dereference the `ARRAY` reference `$json_array_ref` (returned after decoding by `decode_json`), `d2o` is employed to convert the data structure such that all `HASH` references haveaccessors as expected. And the `ARRAY` reference containing the list of `HASH` references has been _blessed_ so that it has the _virtual_ methods on `ARRAY`s briefly mentioned above.
 
