@@ -1,12 +1,12 @@
 # Background
 
-During the 2022 [Perl Advent](https://perladvent.org/2022/2022-12-06.html), in particular the entry for [December 06](https://perladvent.org/2022/2022-12-06.html); we were introduced to a module called `Util::H2O`.
+During the 2022 [Perl Advent](https://perladvent.org/2022/2022-12-06.html), in particular the entry for [December 06](https://perladvent.org/2022/2022-12-06.html); the wortld was introduced to a module called `Util::H2O`.
 
-A lot has already been said about `Util::H2O`, and this author (Oodler, _Mayor of Flavortown_) uses it a lot in client and production code. So much so, that he created the `Util::H2O::More` module to encapsulate some common tasks and additional capabilities for working between _pure_ Perl data structures and _blessed_ objects that have real data _accessors_.
+A lot has already been said about `Util::H2O`, and this author (Oodler, _Mayor of Flavortown_) uses it a lot in client and production code. So much so, that he created the `Util::H2O::More` module to encapsulate some common tasks and additional capabilities for working between _pure_ Perl data structures and _blessed_ objects that have real data _accessors_, in a natural and idiomatic way.
 
 # Pure `HASH` Data Structures Only?
 
-`h2o` is perfect for dealing with data structures that are made up of strictly `HASH` references, but it is often the case that useful data structures contain a mix of `HASH` and `ARRAY` references. For example, when using databases or web API calls for `JSON`, it is often a list of records that is returned. This was the case of the example call that was in the original Perl Advent 2022 article. 
+`h2o` is perfect for dealing with data structures that are made up of strictly `HASH` references, but it is often the case that useful data structures contain a mix of `HASH` and `ARRAY` references. For example, when using databases or web API calls returning `JSON`, it is often a list of records that is returned. This was the case of the example call that was in the _December 06_ Perl Advent 2022 article. 
 
 Recall the original example,
 
@@ -51,7 +51,7 @@ lat, lng, name, username
 
 # Some New Keywords
 
-A new _keyword_ has been introduced in `Util::H2O::More`, called `d2o` and it's _undoer_, `o2d` (like `o2h` is to `h2o`). Essentially, it traverses a Perl data structure, looking for pure `HASH` refs that may be potentially contained inside of `ARRAY` refs.
+New keywords have been introduced in `Util::H2O::More`, called `d2o` and it's _undoer_, `o2d` (like `o2h` is to `h2o`). Essentially, it traverses a Perl data structure, looking for pure `HASH` refs that may be potentially contained inside of `ARRAY` refs, and adds accessors. For `ARRAY`s, it adds some handy vmethods to make accessing the lists much cleaner (e.g., `all`).
 
 Without much ado:
 
@@ -72,7 +72,7 @@ foreach my $user ( $json_array_ref->all ) {
 }
 ```
 
-In this example, the initial `HASH` reference returned by `HTTP::Tiny` was made into an object with accessors using `h2o` like the original code. However, rather than having to dereference the `ARRAY` reference based data structure returned after decoding by `decode_json`, `d2o` is employed to convert the data structure such that all `HASH` references haveaccessors as expected. And the `ARRAY` reference containing the list of `HASH` references has been _blessed_ so that it has the _virtual_ methods briefly mentioned above.
+In this example, the initial `HASH` reference returned by `HTTP::Tiny` is made into an object with accessors using `h2o` like the original code. However, rather than having to dereference the `ARRAY` reference `$json_array_ref` (returned after decoding by `decode_json`), `d2o` is employed to convert the data structure such that all `HASH` references haveaccessors as expected. And the `ARRAY` reference containing the list of `HASH` references has been _blessed_ so that it has the _virtual_ methods on `ARRAY`s briefly mentioned above.
 
 This allows the code to collapse from:
 
@@ -87,8 +87,11 @@ to, simply:
 foreach my $user ( $json_array_ref->all ) {
 ```
 
-thus avoiding also the call to `h2o` since the `d2o` rooted out all the `HASH` references buried in `$json_array_ref` and applied `h2o` to them.
+thus avoiding the call to `h2o` since the `d2o` rooted out all the `HASH` references buried in `$json_array_ref` and applied `h2o` to them.
 
 # Conclusion
 
 As a result of _present_'ing `Util::H2O` in 2022's Perl Advent, it was clear that `h2o` was insufficient to idiomatically improve the handling of Perl data structures that was resulting from the web API call and subsequent `decode_json`. `d2o` was then added to `Util::H2O::More` to make things a little nicer, and thus taking Perl another step closer to a situation that alls programmers to more cleanly work with complex data structures - by eliminating the glut of _curley_ and _square_ braces and the need to dereference data structures along the way.
+
+Please checkout [Util::H2O](https://metacpan.org/pod/Util::H2O) and [Util::H2O::More](https://metacpan.org/pod/Util::H2O::More); alone or combined, the options available to deal with _ad hoc_ or _in flight_ complex data structures in Perl in very clean and idiomatic ways _without_ resorting to so called "POOP" (_Perl Object Oriented Programming_) is continuing to improve. Practical sources of these data structures include, `DBI`, `decode_json`, and `Web::Scraper`. `Util::H2O::More` even provides special methods for working with `Getopt::Long` and `Config::Tiny`, `opt2h2o` and `ini2h2o`, respectively.
+
