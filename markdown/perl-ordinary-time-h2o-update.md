@@ -58,19 +58,18 @@ Without much ado:
 ```
 use strict;
 use warnings;
-use JSON       qw//;
-use HTTP::Tiny qw//;
+use JSON            qw//;
+use HTTP::Tiny      qw//;
 use Util::H2O::More qw/h2o d2o/;
-my $http     = HTTP::Tiny->new;
-my $response = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});  # decode JSON from response content
+my $http           = HTTP::Tiny->new;
+my $response       = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});    # decode JSON from response content
 my $json_array_ref = d2o JSON::decode_json( $response->content );
+
 # $json is an ARRAY reference
 foreach my $person ( $json_array_ref->all ) {
-  printf qq{%5.4f, %5.4f, %s, %s\n},
-  $person->address->geo->lat,
-  $person->address->geo->lng,
-  $person->name,
-  $person->username;
+    printf qq{%5.4f, %5.4f, %s, %s\n}, $person->address->geo->lat,    # deep chain of accessors from '-recurse'
+      $person->address->geo->lng,                                     # deep chain of accessors from '-recurse'
+      $person->name, $person->username;
 }
 ```
 
