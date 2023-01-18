@@ -1,47 +1,47 @@
 During the 2022 <a href=https://perladvent.org/2022/2022-12-06.html target=_other>Perl Advent</a>,
 in particular the entry for <a href=https://perladvent.org/2022/2022-12-06.html>December 06</a>; we
-were introduced to a module called <code>Util::H2O</code>.
+were introduced to a module called <pre>Util::H2O</pre>.
 
 <p/>
 <p/>
 
-A lot has already been said about <code>Util::H2O</code>, and this author (Oodler, Mayor of
+A lot has already been said about <pre>Util::H2O</pre>, and this author (Oodler, Mayor of
 <i>Flavortown</i>) uses it a lot in client and production code. So much so, that he created the
-<code>Util::H2O::More</code> module to encapsulate some common tasks and additional capabilities
+<pre>Util::H2O::More</pre> module to encapsulate some common tasks and additional capabilities
 for working between <i>pure</i> Perl data structures and <i>blessed</i> objects that have real
 data <i>accessors</i>.
 
 <p/>
 <p/>
 
-As a result of the Perl Advent post, another need was revealed. The original intent of <code>h2o</code>
-was only to take a purely <code>HASH</code> reference based data structure, and with this intent it
-shall return (as it should). And even though <code>h2o</code> supports the <code>-recurse</code> option;
-it refuses to enter into anything but a <code>HASH</code> ref. That means if it encounters the other
-legitimate container reference, <code>HTML</code>. This restriction applies similarly to <code>o2h</code>,
-the inverse (or <i>undoer</i>) of <code>h2o</code>.
+As a result of the Perl Advent post, another need was revealed. The original intent of <pre>h2o</pre>
+was only to take a purely <pre>HASH</pre> reference based data structure, and with this intent it
+shall return (as it should). And even though <pre>h2o</pre> supports the <pre>-recurse</pre> option;
+it refuses to enter into anything but a <pre>HASH</pre> ref. That means if it encounters the other
+legitimate container reference, <pre>HTML</pre>. This restriction applies similarly to <pre>o2h</pre>,
+the inverse (or <i>undoer</i>) of <pre>h2o</pre>.
 
 <p/>
 <p/>
 
-A new <i>keyword</i> (because this is how they should be viewed) was introduced in <code>Util::H2O::More</code>,
-called <code>d2o</code> and it's <i>undoer</i>, <code>o2d</code>. Essentially, it traverses
-a Perl data structure, looking for pure <code>HASH</code> refs that may be potentially contained inside of
-<code>ARRAY</code> refs.
+A new <i>keyword</i> (because this is how they should be viewed) was introduced in <pre>Util::H2O::More</pre>,
+called <pre>d2o</pre> and it's <i>undoer</i>, <pre>o2d</pre>. Essentially, it traverses
+a Perl data structure, looking for pure <pre>HASH</pre> refs that may be potentially contained inside of
+<pre>ARRAY</pre> refs.
 
 <p/>
 <p/>
 
-Below is the <code>JSON</code> from the Perl Advent entry on December 06, 2022. In this entry, <code>h2o</code>
-was used to <i>objectify</i> each individual user record since when <i>decoded</i> from the <code>JSON</code>,
-it became a <code>HASH</code> ref. Because <code>h2o</code> only works with data structures that contain purely
-<code>HASH</code> references, an explicit iteration step had to be introduced to apply <code>h2o</code>
-to each <code>HASH</code> ref. That is,
+Below is the <pre>JSON</pre> from the Perl Advent entry on December 06, 2022. In this entry, <pre>h2o</pre>
+was used to <i>objectify</i> each individual user record since when <i>decoded</i> from the <pre>JSON</pre>,
+it became a <pre>HASH</pre> ref. Because <pre>h2o</pre> only works with data structures that contain purely
+<pre>HASH</pre> references, an explicit iteration step had to be introduced to apply <pre>h2o</pre>
+to each <pre>HASH</pre> ref. That is,
 
 <p/>
 <p/>
 
-<code>
+<pre>
 # decode JSON from response content
 my $json_array_ref = JSON::decode_json($response->content); # $json is an ARRAY reference
 
@@ -55,13 +55,13 @@ foreach my $person (@$json_array_ref) {
     ...
 
 }
-</code> 
+</pre> 
 
 <p/>
-Was used to <i>objectify</i> each record contained in <code>JSON</code> of the form,
+Was used to <i>objectify</i> each record contained in <pre>JSON</pre> of the form,
 <p/>
 
-<code>
+<pre>
 [
   {
     "id": 1,
@@ -81,43 +81,43 @@ Was used to <i>objectify</i> each record contained in <code>JSON</code> of the f
   },
  ...
 ]
-</code>
+</pre>
 
 <p/>
 
-The problem revealed here is that <code>h2o</code> is amazing for giving accessors those
-ad hoc or temporary <i>pure</i> <code>HASH</code> references all Perl programmers come to know
-and love. But the veil gets pierced once an <code>ARRAY</code> ref is encountered. And this
+The problem revealed here is that <pre>h2o</pre> is amazing for giving accessors those
+ad hoc or temporary <i>pure</i> <pre>HASH</pre> references all Perl programmers come to know
+and love. But the veil gets pierced once an <pre>ARRAY</pre> ref is encountered. And this
 is what happens in the example above.
 
 <p/>
 
-How should this be solved? By generalizing <code>h2o</code> into a <i>keyword</i> that has
-the ability to traverse any Perl data structure, adding accessors to any <code>HASH</code> ref
-it finds along this way. This is what <code>d2o</code> does. 
+How should this be solved? By generalizing <pre>h2o</pre> into a <i>keyword</i> that has
+the ability to traverse any Perl data structure, adding accessors to any <pre>HASH</pre> ref
+it finds along this way. This is what <pre>d2o</pre> does. 
 
 <p/>
 
 Now the explicit iteration that is just for adding accessors to each record, goes from a loop
-having to dereference the <code>ARRAY<code> ref in <code>$json_array_ref</code>, to the following:
+having to dereference the <pre>ARRAY<pre> ref in <pre>$json_array_ref</pre>, to the following:
 
 <p/>
 
-<code>
+<pre>
 # decode JSON from response content
 my $json_array_ref = d2o JSON::decode_json($response->content); # $json is an ARRAY reference
-</code>
+</pre>
 
 <p/>
 
-<code>d2o</code> doesn't just ignore <code>ARRAYs</code>, it goes a step further by providing
-<i>virtual</i> methods around the <code>ARRAY</code> container that further helps avoid the need
-to use <code>ARRAY</code>dereferencing syntax to iterate over the <code>HASH</code> references
+<pre>d2o</pre> doesn't just ignore <pre>ARRAYs</pre>, it goes a step further by providing
+<i>virtual</i> methods around the <pre>ARRAY</pre> container that further helps avoid the need
+to use <pre>ARRAY</pre>dereferencing syntax to iterate over the <pre>HASH</pre> references
 (now blessed with accessors). See the example below,
 
 <p/>
 
-<code>
+<pre>
 foreach my $user ($json_array_ref->all) {
   printf qq{%5.4f, %5.4f, %s, %s\n},
     $person->address->geo->lat,   # deep chain of accessors from '-recurse'
@@ -125,7 +125,7 @@ foreach my $user ($json_array_ref->all) {
     $person->name,
     $person->username;  
 }
-</code>
+</pre>
 
 <p/>
 
@@ -133,7 +133,7 @@ Or more concisely,
 
 <p/>
 
-<code>
+<pre>
 use strict;
 use warnings;
 use Util::H2O::More qw/d2o/;
@@ -147,5 +147,5 @@ my $json_array_ref = d2o JSON::decode_json( $response->content );    # $json is 
 foreach my $user ( $json_array_ref->all ) {
     printf qq{%5.4f, %5.4f, %s, %s\n}, $person->address->geo->lat, $person->address->geo->lng, $person->name, $person->username;
 }
-</code>
+</pre>
 <p/>
