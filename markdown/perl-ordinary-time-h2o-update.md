@@ -4,7 +4,7 @@ During the 2022 [Perl Advent](https://perladvent.org/2022/2022-12-06.html), in p
 
 A lot has already been said about `Util::H2O`, and this author (Oodler, _Mayor of Flavortown_) uses it a lot in client and production code. So much so, that he created the `Util::H2O::More` module to encapsulate some common tasks and additional capabilities for working between _pure_ Perl data structures and _blessed_ objects that have real data _accessors_, in a natural and idiomatic way.
 
-# Pure `HASH` Data Structures Only?
+# Support for Generic Perl Data Structures
 
 `h2o` is perfect for dealing with data structures that are made up of strictly `HASH` references, but it is often the case that useful data structures contain a mix of `HASH` and `ARRAY` references. For example, when using databases or web API calls returning `JSON`, it is often a list of records that is returned. This was the case of the example call that was in the _December 06_ Perl Advent 2022 article. 
 
@@ -18,17 +18,20 @@ Recall the original example,
     my $http     = HTTP::Tiny->new;
     my $response = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});
     if ( not $response->success ) {
-        print STDERR qq{Can't get list of online persons to watch!\n};
+        print STDERR qq{Cannot get list of online persons to watch!\n};
         printf STDERR qq{Web request responded with with HTTP status: %d\n}, $response->status;
         exit 1;
     }
-    my $json_array_ref = JSON::decode_json( $response->content );    # $json is an ARRAY reference
+    my $json_array_ref = JSON::decode_json( $response->content );
+
     print qq{lat, lng, name, username\n};
     foreach my $person (@$json_array_ref) {
+
+        # objectify each HASH reference at a time
         h2o -recurse, $person;
         printf qq{%5.4f, %5.4f, %s, %s\n},
-          $person->address->geo->lat,        # deep chain of accessors from '-recurse'
-          $person->address->geo->lng,        # deep chain of accessors from '-recurse'
+          $person->address->geo->lat,
+          $person->address->geo->lng,
           $person->name, $person->username;
     }
 
@@ -58,14 +61,21 @@ Without much ado:
     use HTTP::Tiny      qw//;
     use Util::H2O::More qw/h2o d2o/;
     my $http           = HTTP::Tiny->new;
-    my $response       = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});    # decode JSON from response content
+    my $response       = h2o $http->get(q{https://jsonplaceholder.typicode.com/users});
+    if ( not $response->success ) {
+        print STDERR qq{Cannot get list of online persons to watch!\n};
+        printf STDERR qq{Web request responded with with HTTP status: %d\n}, $response->status;
+        exit 1;
+    }
+
+    # objectify contents of $json_array_ref in one pass
     my $json_array_ref = d2o JSON::decode_json( $response->content );
     
     # $json is an ARRAY reference
     foreach my $person ( $json_array_ref->all ) {
         printf qq{%5.4f, %5.4f, %s, %s\n},
-          $person->address->geo->lat,        # deep chain of accessors from '-recurse'
-          $person->address->geo->lng,        # deep chain of accessors from '-recurse'
+          $person->address->geo->lat,
+          $person->address->geo->lng,
           $person->name, $person->username;
     }
 
@@ -96,6 +106,8 @@ to, simply:
     foreach my $user ( $json_array_ref->all ) {
 
 thus avoiding the call to `h2o` since the `d2o` rooted out all the `HASH` references buried in `$json_array_ref` and applied `h2o` to them.
+
+More importantly, this requires no _a priori_ knowledge of the data structure ahead of time.
 
 # Conclusion
 
