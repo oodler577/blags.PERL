@@ -27,8 +27,9 @@ my $json_array_ref = JSON::decode_json( $response->content );    # $json is an A
 print qq{lat, lng, name, username\n};
 foreach my $person (@$json_array_ref) {
     h2o -recurse, $person;
-    printf qq{%5.4f, %5.4f, %s, %s\n}, $person->address->geo->lat,    # deep chain of accessors from '-recurse'
-      $person->address->geo->lng,                                     # deep chain of accessors from '-recurse'
+    printf qq{%5.4f, %5.4f, %s, %s\n},
+      $person->address->geo->lat,        # deep chain of accessors from '-recurse'
+      $person->address->geo->lng,        # deep chain of accessors from '-recurse'
       $person->name, $person->username;
 }
 ```
@@ -67,8 +68,9 @@ my $json_array_ref = d2o JSON::decode_json( $response->content );
 
 # $json is an ARRAY reference
 foreach my $person ( $json_array_ref->all ) {
-    printf qq{%5.4f, %5.4f, %s, %s\n}, $person->address->geo->lat,    # deep chain of accessors from '-recurse'
-      $person->address->geo->lng,                                     # deep chain of accessors from '-recurse'
+    printf qq{%5.4f, %5.4f, %s, %s\n},
+      $person->address->geo->lat,        # deep chain of accessors from '-recurse'
+      $person->address->geo->lng,        # deep chain of accessors from '-recurse'
       $person->name, $person->username;
 }
 ```
