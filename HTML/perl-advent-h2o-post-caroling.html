@@ -1,15 +1,17 @@
 During the 2022 <a href=https://perladvent.org/2022/2022-12-06.html target=_other>Perl Advent</a>,
 in particular the entry for <a href=https://perladvent.org/2022/2022-12-06.html>December 06</a>; we
-were introduced to a module called <code><b>Util::H2O</b></code>.
+were introduced to a module called <code>Util::H2O</code>.
 
+<p/>
 <p/>
 
 A lot has already been said about <code>Util::H2O</code>, and this author (Oodler, Mayor of
 <i>Flavortown</i>) uses it a lot in client and production code. So much so, that he created the
-<code><b>Util::H2O::More</b></code> module to encapsulate some common tasks and additional capabilities
+<code>Util::H2O::More</code> module to encapsulate some common tasks and additional capabilities
 for working between <i>pure</i> Perl data structures and <i>blessed</i> objects that have real
 data <i>accessors</i>.
 
+<p/>
 <p/>
 
 As a result of the Perl Advent post, another need was revealed. The original intent of <code>h2o</code>
@@ -20,12 +22,14 @@ legitimate container reference, <code>HTML</code>. This restriction applies simi
 the inverse (or <i>undoer</i>) of <code>h2o</code>.
 
 <p/>
+<p/>
 
 A new <i>keyword</i> (because this is how they should be viewed) was introduced in <code>Util::H2O::More</code>,
-called <code><b>d2o</b></code> and it's <i>undoer</i>, <code><b>o2d</d></code>. Essentially, it traverses
+called <code>d2o</code> and it's <i>undoer</i>, <code>o2d</code>. Essentially, it traverses
 a Perl data structure, looking for pure <code>HASH</code> refs that may be potentially contained inside of
 <code>ARRAY</code> refs.
 
+<p/>
 <p/>
 
 Below is the <code>JSON</code> from the Perl Advent entry on December 06, 2022. In this entry, <code>h2o</code>
@@ -35,8 +39,9 @@ it became a <code>HASH</code> ref. Because <code>h2o</code> only works with data
 to each <code>HASH</code> ref. That is,
 
 <p/>
+<p/>
 
-<pre>
+<code>
 # decode JSON from response content
 my $json_array_ref = JSON::decode_json($response->content); # $json is an ARRAY reference
 
@@ -50,13 +55,13 @@ foreach my $person (@$json_array_ref) {
     ...
 
 }
-</pre> 
+</code> 
 
 <p/>
 Was used to <i>objectify</i> each record contained in <code>JSON</code> of the form,
 <p/>
 
-<pre>
+<code>
 [
   {
     "id": 1,
@@ -76,7 +81,7 @@ Was used to <i>objectify</i> each record contained in <code>JSON</code> of the f
   },
  ...
 ]
-</pre>
+</code>
 
 <p/>
 
@@ -89,7 +94,7 @@ is what happens in the example above.
 
 How should this be solved? By generalizing <code>h2o</code> into a <i>keyword</i> that has
 the ability to traverse any Perl data structure, adding accessors to any <code>HASH</code> ref
-it finds along this way. This is what <code><b>d2o</d></code> does. 
+it finds along this way. This is what <code>d2o</code> does. 
 
 <p/>
 
@@ -112,7 +117,7 @@ to use <code>ARRAY</code>dereferencing syntax to iterate over the <code>HASH</co
 
 <p/>
 
-<pre>
+<code>
 foreach my $user ($json_array_ref->all) {
   printf qq{%5.4f, %5.4f, %s, %s\n},
     $person->address->geo->lat,   # deep chain of accessors from '-recurse'
@@ -120,11 +125,15 @@ foreach my $user ($json_array_ref->all) {
     $person->name,
     $person->username;  
 }
-</pre>
+</code>
+
 <p/>
+
 Or more concisely,
+
 <p/>
-<pre>
+
+<code>
 use strict;
 use warnings;
 use Util::H2O::More qw/d2o/;
@@ -138,5 +147,5 @@ my $json_array_ref = d2o JSON::decode_json( $response->content );    # $json is 
 foreach my $user ( $json_array_ref->all ) {
     printf qq{%5.4f, %5.4f, %s, %s\n}, $person->address->geo->lat, $person->address->geo->lng, $person->name, $person->username;
 }
-</pre>
+</code>
 <p/>
