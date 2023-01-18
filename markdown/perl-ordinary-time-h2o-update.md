@@ -1,17 +1,23 @@
+# Background
+
 During the 2022 [Perl Advent](https://perladvent.org/2022/2022-12-06.html), in particular the entry for [December 06](https://perladvent.org/2022/2022-12-06.html); we were introduced to a module called `Util::H2O`.
 
 A lot has already been said about `Util::H2O`, and this author (Oodler, Mayor of _Flavortown_) uses it a lot in client and production code. So much so, that he created the `Util::H2O::More` module to encapsulate some common tasks and additional capabilities for working between _pure_ Perl data structures and _blessed_ objects that have real data _accessors_.
 
 As a result of the Perl Advent post, another need was revealed. The original intent of `h2o` was only to take a purely `HASH` reference based data structure, and with this intent it shall return (as it should). And even though `h2o` supports the `-recurse` option; it refuses to enter into anything but a `HASH` ref. That means if it encounters the other legitimate container reference, `HTML`. This restriction applies similarly to `o2h`, the inverse (or _undoer_) of `h2o`.
 
+# Some New Keywords
+
 A new _keyword_ (because this is how they should be viewed) was introduced in `Util::H2O::More`, called `d2o` and it's _undoer_, `o2d`. Essentially, it traverses a Perl data structure, looking for pure `HASH` refs that may be potentially contained inside of `ARRAY` refs.
 
 Below is the `JSON` from the Perl Advent entry on December 06, 2022. In this entry, `h2o` was used to _objectify_ each individual user record since when _decoded_ from the `JSON`, it became a `HASH` ref. Because `h2o` only works with data structures that contain purely `HASH` references, an explicit iteration step had to be introduced to apply `h2o` to each `HASH` ref. That is,
 
-\# decode JSON from response content
-my $json\_array\_ref = JSON::decode\_json($response->content); # $json is an ARRAY reference
 
-foreach my $person (@$json\_array\_ref) {
+```
+# decode JSON from response content
+my $json_array_ref = JSON::decode_json($response->content); # $json is an ARRAY reference
+
+foreach my $person (@$json_array_ref) {
 
     # -recurse creates deep accessors, e.g.,
     #  $person->address->geo->lat;
@@ -19,8 +25,8 @@ foreach my $person (@$json\_array\_ref) {
     h2o -recurse, $person;
 
     ...
-
 }
+```
 
 Was used to _objectify_ each record contained in `JSON` of the form,
 
