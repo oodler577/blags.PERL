@@ -103,7 +103,7 @@ This allows the code to collapse from:
 
 to, simply:
 
-    foreach my $user ( $json_array_ref->all ) {
+    foreach my $person ( $json_array_ref->all ) {
 
 thus avoiding the call to `h2o` since the `d2o` rooted out all the `HASH` references buried in `$json_array_ref` and applied `h2o` to them.
 
