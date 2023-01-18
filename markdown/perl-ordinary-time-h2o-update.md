@@ -97,6 +97,14 @@ foreach my $person (@$json_array_ref) {
     h2o -recurse, $person;
 ...
 ```
-to:
+to, simply:
 
-`foreach my $user ( $json_array_ref->all ) {`
+```
+foreach my $user ( $json_array_ref->all ) {
+```
+
+thus avoiding also the call to `h2o` since the `d2o` rooted out all the `HASH` references buried in `$json_array_ref` and applied `h2o` to them.
+
+# Conclusion
+
+As a result of _present_'ing `Util::H2O` in 2022's Perl Advent, it was clear that `h2o` was insufficient to idiomatically improve the handling of Perl data structures that was resulting from the web API call and subsequent `decode_json`. `d2o` was then added to `Util::H2O::More` to make things a little nicer, and thus taking Perl another step closer to a situation that alls programmers to more cleanly work with complex data structures - by eliminating the glut of _curley_ and _square_ braces and the need to dereference data structures along the way.
