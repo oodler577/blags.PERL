@@ -110,9 +110,9 @@ my $json_array_ref = d2o JSON::decode_json($response->content); # $json is an AR
 
 <p/>
 
-<pre>d2o</pre> doesn't just ignore <pre>ARRAYs</pre>, it goes a step further by providing
-<i>virtual</i> methods around the <pre>ARRAY</pre> container that further helps avoid the need
-to use <pre>ARRAY</pre>dereferencing syntax to iterate over the <pre>HASH</pre> references
+<code>d2o</code> does not just ignore <code>ARRAYs</code>, it goes a step further by providing
+<i>virtual</i> methods around the <code>ARRAY</code> container that further helps avoid the need
+to use <code>ARRAY</code>dereferencing syntax to iterate over the <code>HASH</code> references
 (now blessed with accessors). See the example below,
 
 <p/>
